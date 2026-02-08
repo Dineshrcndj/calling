@@ -3,59 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Owner - Call Receiver</title>
+    <title>Support Agent - Permanent ID</title>
     <link rel="manifest" href="manifest.json">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            color: white;
         }
         
         .container {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             padding: 30px;
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            color: #333;
+        }
+        
+        .header {
             text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        h1 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .permanent-id-card {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+        }
+        
+        .permanent-id {
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            word-break: break-all;
         }
         
         .status-card {
             background: #f8f9fa;
             border-radius: 15px;
             padding: 25px;
-            margin-bottom: 25px;
+            margin: 20px 0;
+            text-align: center;
         }
         
         .status-indicator {
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            padding: 10px 20px;
+            padding: 15px 30px;
             border-radius: 50px;
             font-weight: bold;
-            margin-bottom: 15px;
+            font-size: 20px;
+            margin-bottom: 20px;
         }
         
         .online { background: #d4edda; color: #155724; }
         .offline { background: #f8d7da; color: #721c24; }
         .busy { background: #fff3cd; color: #856404; }
+        .ringing { 
+            background: #cce5ff; 
+            color: #004085;
+            animation: pulse 1s infinite;
+        }
         
-        .dot {
-            width: 12px;
-            height: 12px;
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .status-dot {
+            width: 15px;
+            height: 15px;
             border-radius: 50%;
             display: inline-block;
         }
@@ -63,54 +119,49 @@
         .green-dot { background: #28a745; }
         .red-dot { background: #dc3545; }
         .yellow-dot { background: #ffc107; }
+        .blue-dot { background: #007bff; }
         
-        .owner-id-box {
-            background: #e7f3ff;
-            border: 2px dashed #0d6efd;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
-            word-break: break-all;
-            font-family: monospace;
-            font-size: 14px;
-        }
-        
-        .call-notification {
-            background: white;
+        .incoming-call {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            color: white;
             border-radius: 15px;
-            padding: 25px;
-            margin: 20px 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
             display: none;
-            animation: pulse 2s infinite;
-            border: 3px solid #4CAF50;
+            animation: ring 2s infinite;
         }
         
-        @keyframes pulse {
+        @keyframes ring {
             0% { transform: scale(1); }
             50% { transform: scale(1.02); }
             100% { transform: scale(1); }
         }
         
-        .call-notification.active {
-            display: block;
+        .call-controls {
+            margin-top: 30px;
+            display: none;
         }
         
         .btn {
-            padding: 15px 30px;
+            padding: 18px 35px;
             border: none;
             border-radius: 50px;
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
-            margin: 5px;
-            min-width: 120px;
+            margin: 10px;
+            min-width: 140px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
         
         .btn:active {
@@ -135,17 +186,43 @@
         
         audio {
             width: 100%;
-            margin: 20px 0;
-            background: #f0f0f0;
+            margin: 25px 0;
             border-radius: 10px;
         }
         
-        .connection-count {
-            background: #e9ecef;
-            padding: 10px;
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .stat-box {
+            background: #f8f9fa;
+            padding: 20px;
             border-radius: 10px;
-            margin: 15px 0;
+            min-width: 120px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
             font-size: 14px;
+            color: #666;
+        }
+        
+        .instructions {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+            font-size: 14px;
+            color: #0c63e4;
         }
         
         .notification {
@@ -166,72 +243,129 @@
             to { transform: translateX(0); opacity: 1; }
         }
         
-        .notification.success { background: #28a745; }
-        .notification.error { background: #dc3545; }
-        .notification.info { background: #17a2b8; }
+        .notification-success { background: #28a745; }
+        .notification-error { background: #dc3545; }
+        .notification-info { background: #17a2b8; }
         
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 28px;
+        .connection-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
         }
         
-        .qr-code {
-            margin: 20px auto;
+        .connection-item {
             padding: 10px;
+            margin: 5px 0;
             background: white;
-            border-radius: 10px;
-            display: inline-block;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .pwa-install {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .install-btn {
+            background: #1e3c72;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📱 Call Owner</h1>
+        <div class="header">
+            <div class="logo">🎧</div>
+            <h1>Support Agent Console</h1>
+            <p class="subtitle">Permanent ID: Users connect directly to you</p>
+        </div>
+        
+        <div class="permanent-id-card">
+            <h2>Your Permanent ID</h2>
+            <div class="permanent-id" id="ownerIdDisplay">support-agent-007</div>
+            <p>Users connect to this ID automatically</p>
+            <small>This ID never changes - users always reach you</small>
+        </div>
+        
         <div class="status-card">
             <div class="status-indicator offline" id="statusIndicator">
-                <span class="dot red-dot"></span>
+                <span class="status-dot red-dot"></span>
                 <span id="statusText">Offline</span>
             </div>
             
-            <div class="owner-id-box">
-                <strong>Your Owner ID:</strong><br>
-                <span id="ownerIdDisplay">Connecting...</span>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="connectedUsers">0</div>
+                    <div class="stat-label">Connected Users</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="totalCalls">0</div>
+                    <div class="stat-label">Total Calls</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="activeCalls">0</div>
+                    <div class="stat-label">Active Calls</div>
+                </div>
             </div>
             
-            <div class="connection-count">
-                📊 Connected Users: <span id="userCount">0</span>
-            </div>
-            
-            <div style="margin-top: 15px; font-size: 14px; color: #666;">
-                <p>Share this ID with users to receive calls</p>
-                <p>Keep this page open to stay available</p>
+            <div id="idleMessage">
+                Waiting for incoming calls...
             </div>
         </div>
         
-        <div class="call-notification" id="callNotification">
-            <div style="font-size: 20px; margin-bottom: 15px;">
-                📞 Incoming Call
-            </div>
-            <div id="callerInfo" style="margin-bottom: 20px; color: #555;">
-                User is calling...
-            </div>
-            <div>
-                <button class="btn btn-accept" id="acceptBtn">Accept</button>
-                <button class="btn btn-reject" id="rejectBtn">Reject</button>
+        <div class="incoming-call" id="incomingCall">
+            <div style="font-size: 32px; margin-bottom: 15px;">📞</div>
+            <h2>Incoming Call!</h2>
+            <p id="callerInfo">User is calling...</p>
+            <div style="margin-top: 25px;">
+                <button class="btn btn-accept" id="acceptBtn">
+                    <span>✅</span> Accept
+                </button>
+                <button class="btn btn-reject" id="rejectBtn">
+                    <span>❌</span> Reject
+                </button>
             </div>
         </div>
         
-        <div id="callControls" style="display: none;">
-            <div style="font-size: 20px; color: #28a745; margin: 15px 0;">
-                ✓ Call Connected
+        <div class="call-controls" id="callControls">
+            <div style="font-size: 24px; color: #28a745; margin-bottom: 15px;">
+                ✓ Call in Progress
             </div>
             <audio id="remoteAudio" autoplay controls></audio>
-            <button class="btn btn-end" id="endCallBtn">End Call</button>
+            <button class="btn btn-end" id="endCallBtn">
+                <span>📞</span> End Call
+            </button>
         </div>
         
-        <div id="idleMessage" style="color: #666; font-size: 14px; margin-top: 20px;">
-            Waiting for calls...
+        <div class="connection-list" id="connectionList" style="display: none;">
+            <h4>Connected Users:</h4>
+            <div id="connectionsContainer"></div>
+        </div>
+        
+        <div class="instructions">
+            <strong>How this works:</strong><br>
+            1. Your ID is permanent - never changes<br>
+            2. Users click "Call Support" and connect directly to you<br>
+            3. No IDs to share or manage<br>
+            4. Keep this page open to receive calls<br>
+            <br>
+            <strong>Tip:</strong> Install as PWA (Add to Home Screen) for best experience
+        </div>
+        
+        <div class="pwa-install">
+            <button class="install-btn" onclick="installPWA()">
+                <span>📱</span> Install App
+            </button>
         </div>
     </div>
     
@@ -239,6 +373,602 @@
     
     <!-- PeerJS Library -->
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
-    <script src="owner-app.js"></script>
+    <script>
+        // ========== OWNER SYSTEM WITH PERMANENT ID ==========
+        class OwnerCallSystem {
+            constructor() {
+                // ⚡ PERMANENT FIXED ID - CHANGE THIS TO YOUR DESIRED ID
+                // This must match the OWNER_ID in user page
+                this.PERMANENT_ID = "support-agent-007";
+                
+                this.peer = null;
+                this.dataConnections = new Map(); // Connected users
+                this.mediaConnections = new Map(); // Active calls
+                this.localStream = null;
+                this.currentCaller = null;
+                this.isInCall = false;
+                this.stats = {
+                    connectedUsers: 0,
+                    totalCalls: 0,
+                    activeCalls: 0
+                };
+                
+                // DOM Elements
+                this.ownerIdDisplay = document.getElementById('ownerIdDisplay');
+                this.statusIndicator = document.getElementById('statusIndicator');
+                this.statusText = document.getElementById('statusText');
+                this.incomingCallDiv = document.getElementById('incomingCall');
+                this.callControls = document.getElementById('callControls');
+                this.remoteAudio = document.getElementById('remoteAudio');
+                this.acceptBtn = document.getElementById('acceptBtn');
+                this.rejectBtn = document.getElementById('rejectBtn');
+                this.endCallBtn = document.getElementById('endCallBtn');
+                this.callerInfo = document.getElementById('callerInfo');
+                this.connectedUsersSpan = document.getElementById('connectedUsers');
+                this.totalCallsSpan = document.getElementById('totalCalls');
+                this.activeCallsSpan = document.getElementById('activeCalls');
+                this.connectionList = document.getElementById('connectionList');
+                this.connectionsContainer = document.getElementById('connectionsContainer');
+                this.notification = document.getElementById('notification');
+                
+                this.init();
+            }
+            
+            async init() {
+                console.log("🚀 Initializing Owner System with Permanent ID");
+                console.log(`🎯 Your Permanent ID: ${this.PERMANENT_ID}`);
+                
+                // Display permanent ID
+                this.ownerIdDisplay.textContent = this.PERMANENT_ID;
+                this.ownerIdDisplay.onclick = () => {
+                    navigator.clipboard.writeText(this.PERMANENT_ID);
+                    this.showNotification("ID copied!", "success");
+                };
+                
+                // Initialize PeerJS with PERMANENT ID
+                this.initializePeer();
+                
+                // Setup event listeners
+                this.setupEventListeners();
+                
+                // Request microphone
+                await this.requestMicrophone();
+                
+                // Setup PWA features
+                this.setupPWA();
+                
+                // Setup auto-reconnect
+                this.setupAutoReconnect();
+                
+                console.log("✅ Owner system ready. Users can connect directly.");
+            }
+            
+            initializePeer() {
+                console.log("Connecting to signaling server with permanent ID...");
+                
+                // Use the permanent ID - this never changes
+                this.peer = new Peer(this.PERMANENT_ID, {
+                    host: '0.peerjs.com',
+                    port: 443,
+                    path: '/',
+                    secure: true,
+                    config: {
+                        'iceServers': [
+                            { urls: 'stun:stun.l.google.com:19302' },
+                            { urls: 'stun:global.stun.twilio.com:3478' }
+                        ]
+                    },
+                    debug: 2
+                });
+                
+                this.setupPeerListeners();
+            }
+            
+            setupPeerListeners() {
+                // When connected to signaling server
+                this.peer.on('open', (id) => {
+                    console.log(`✅ Connected as: ${id}`);
+                    this.updateStatus('online');
+                    this.showNotification("Ready to receive calls", "success");
+                    
+                    // Make sure ID matches our permanent ID
+                    if (id !== this.PERMANENT_ID) {
+                        console.warn(`ID mismatch! Expected ${this.PERMANENT_ID}, got ${id}`);
+                    }
+                });
+                
+                // Handle incoming data connections (users connecting)
+                this.peer.on('connection', (connection) => {
+                    console.log(`New user connected: ${connection.peer}`);
+                    
+                    // Store the connection
+                    this.dataConnections.set(connection.peer, connection);
+                    this.updateStats();
+                    this.updateConnectionList();
+                    
+                    // Setup data connection handlers
+                    this.setupDataConnection(connection);
+                    
+                    // Send status to user
+                    connection.send({
+                        type: 'owner-status',
+                        status: this.isInCall ? 'busy' : 'available'
+                    });
+                    
+                    // Show notification
+                    this.showNotification(`User connected: ${connection.peer.substr(0, 8)}`, "info");
+                });
+                
+                // Handle incoming calls
+                this.peer.on('call', async (call) => {
+                    console.log(`📞 Incoming call from: ${call.peer}`);
+                    
+                    // Ignore if already in call
+                    if (this.isInCall) {
+                        console.log("Busy - rejecting call");
+                        const userConn = this.dataConnections.get(call.peer);
+                        if (userConn) {
+                            userConn.send({ type: 'owner-busy' });
+                        }
+                        call.close();
+                        return;
+                    }
+                    
+                    // Store the call
+                    this.currentCaller = call.peer;
+                    this.mediaConnections.set(call.peer, call);
+                    
+                    // Show incoming call UI
+                    this.showIncomingCall(call.peer);
+                    
+                    // Auto-answer after 30 seconds if not manually handled
+                    this.autoRejectTimer = setTimeout(() => {
+                        if (this.currentCaller === call.peer) {
+                            this.rejectCall();
+                        }
+                    }, 30000);
+                });
+                
+                // Handle errors
+                this.peer.on('error', (err) => {
+                    console.error("PeerJS error:", err);
+                    
+                    if (err.type === 'unavailable-id') {
+                        console.error("Permanent ID is unavailable. It might be in use elsewhere.");
+                        this.showNotification("ID unavailable - restarting...", "error");
+                        
+                        // Try with a slight variation after 5 seconds
+                        setTimeout(() => {
+                            this.peer.destroy();
+                            this.initializePeer();
+                        }, 5000);
+                    } else if (err.type === 'network') {
+                        this.updateStatus('offline');
+                        setTimeout(() => {
+                            if (this.peer.disconnected) {
+                                this.peer.reconnect();
+                            }
+                        }, 3000);
+                    }
+                });
+                
+                this.peer.on('disconnected', () => {
+                    console.log("Disconnected from signaling server");
+                    this.updateStatus('offline');
+                    
+                    // Auto-reconnect after 2 seconds
+                    setTimeout(() => {
+                        if (this.peer.disconnected) {
+                            this.peer.reconnect();
+                        }
+                    }, 2000);
+                });
+            }
+            
+            async requestMicrophone() {
+                try {
+                    this.localStream = await navigator.mediaDevices.getUserMedia({
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true,
+                            sampleRate: 48000,
+                            channelCount: 1
+                        },
+                        video: false
+                    });
+                    console.log("🎤 Microphone ready");
+                } catch (error) {
+                    console.error("Microphone error:", error);
+                    this.showNotification("Microphone access required", "error");
+                }
+            }
+            
+            setupDataConnection(connection) {
+                connection.on('data', (data) => {
+                    console.log(`Data from ${connection.peer}:`, data);
+                    
+                    if (data.type === 'call-ended') {
+                        // User ended the call
+                        this.endCall();
+                    }
+                });
+                
+                connection.on('close', () => {
+                    console.log(`User disconnected: ${connection.peer}`);
+                    this.dataConnections.delete(connection.peer);
+                    this.mediaConnections.delete(connection.peer);
+                    this.updateStats();
+                    this.updateConnectionList();
+                    
+                    // If this was the current caller, end the call
+                    if (this.currentCaller === connection.peer) {
+                        this.endCall();
+                    }
+                });
+                
+                connection.on('error', (err) => {
+                    console.error(`Connection error from ${connection.peer}:`, err);
+                });
+            }
+            
+            setupEventListeners() {
+                // Accept call button
+                this.acceptBtn.addEventListener('click', () => this.acceptCall());
+                
+                // Reject call button
+                this.rejectBtn.addEventListener('click', () => this.rejectCall());
+                
+                // End call button
+                this.endCallBtn.addEventListener('click', () => this.endCall());
+                
+                // Auto-refresh connections
+                setInterval(() => this.updateConnectionList(), 5000);
+            }
+            
+            showIncomingCall(callerId) {
+                // Clear any auto-reject timer
+                if (this.autoRejectTimer) {
+                    clearTimeout(this.autoRejectTimer);
+                    this.autoRejectTimer = null;
+                }
+                
+                // Update UI
+                this.callerInfo.textContent = `User: ${callerId}`;
+                this.incomingCallDiv.style.display = 'block';
+                this.updateStatus('ringing');
+                
+                // Play ringtone
+                this.playRingtone();
+            }
+            
+            hideIncomingCall() {
+                this.incomingCallDiv.style.display = 'none';
+                this.stopRingtone();
+            }
+            
+            async acceptCall() {
+                if (!this.currentCaller || !this.localStream) return;
+                
+                const call = this.mediaConnections.get(this.currentCaller);
+                if (!call) return;
+                
+                try {
+                    console.log("Accepting call...");
+                    
+                    // Answer the call
+                    call.answer(this.localStream);
+                    
+                    // Handle the remote audio stream
+                    call.on('stream', (remoteStream) => {
+                        console.log("Received user audio");
+                        this.remoteAudio.srcObject = remoteStream;
+                        this.showCallControls();
+                        this.hideIncomingCall();
+                        this.isInCall = true;
+                        this.updateStatus('busy');
+                        this.stats.totalCalls++;
+                        this.stats.activeCalls = 1;
+                        this.updateStats();
+                        
+                        // Notify the user
+                        const userConn = this.dataConnections.get(this.currentCaller);
+                        if (userConn) {
+                            userConn.send({ type: 'call-accepted' });
+                        }
+                        
+                        // Notify all other users that owner is busy
+                        this.broadcastToAllUsers({ 
+                            type: 'owner-status', 
+                            status: 'busy' 
+                        }, this.currentCaller);
+                        
+                        this.showNotification("Call connected", "success");
+                    });
+                    
+                    call.on('close', () => {
+                        console.log("Call closed");
+                        this.endCall();
+                    });
+                    
+                    call.on('error', (err) => {
+                        console.error("Call error:", err);
+                        this.endCall();
+                        this.showNotification("Call error", "error");
+                    });
+                    
+                } catch (error) {
+                    console.error("Error accepting call:", error);
+                    this.endCall();
+                    this.showNotification("Failed to accept call", "error");
+                }
+            }
+            
+            rejectCall() {
+                console.log("Rejecting call");
+                
+                if (this.currentCaller) {
+                    // Notify the user
+                    const userConn = this.dataConnections.get(this.currentCaller);
+                    if (userConn) {
+                        userConn.send({ type: 'call-rejected' });
+                    }
+                    
+                    // Close the call
+                    const call = this.mediaConnections.get(this.currentCaller);
+                    if (call) {
+                        call.close();
+                    }
+                    
+                    // Clean up
+                    this.mediaConnections.delete(this.currentCaller);
+                    this.hideIncomingCall();
+                    this.currentCaller = null;
+                    this.updateStatus('online');
+                    
+                    this.showNotification("Call rejected", "info");
+                }
+            }
+            
+            endCall() {
+                console.log("Ending call");
+                
+                // Close all media connections
+                this.mediaConnections.forEach((call, peerId) => {
+                    call.close();
+                });
+                this.mediaConnections.clear();
+                
+                // Clear audio
+                if (this.remoteAudio.srcObject) {
+                    this.remoteAudio.srcObject = null;
+                }
+                
+                // Reset state
+                this.isInCall = false;
+                this.currentCaller = null;
+                this.stats.activeCalls = 0;
+                
+                // Update UI
+                this.hideCallControls();
+                this.hideIncomingCall();
+                this.updateStatus('online');
+                this.updateStats();
+                
+                // Notify all users that owner is available again
+                this.broadcastToAllUsers({ 
+                    type: 'owner-status', 
+                    status: 'available' 
+                });
+                
+                this.showNotification("Call ended", "info");
+            }
+            
+            broadcastToAllUsers(data, excludePeer = null) {
+                this.dataConnections.forEach((conn, peerId) => {
+                    if (peerId !== excludePeer && conn.open) {
+                        conn.send(data);
+                    }
+                });
+            }
+            
+            updateStatus(status) {
+                const statusMap = {
+                    online: { 
+                        class: 'online', 
+                        text: 'Online', 
+                        dot: 'green-dot',
+                        message: 'Ready to receive calls' 
+                    },
+                    offline: { 
+                        class: 'offline', 
+                        text: 'Offline', 
+                        dot: 'red-dot',
+                        message: 'Connecting...' 
+                    },
+                    busy: { 
+                        class: 'busy', 
+                        text: 'In Call', 
+                        dot: 'yellow-dot',
+                        message: 'Currently in a call' 
+                    },
+                    ringing: { 
+                        class: 'ringing', 
+                        text: 'Incoming Call', 
+                        dot: 'blue-dot',
+                        message: 'Answer the call!' 
+                    }
+                };
+                
+                const statusInfo = statusMap[status];
+                this.statusIndicator.className = `status-indicator ${statusInfo.class}`;
+                this.statusText.textContent = statusInfo.text;
+                
+                // Update dot
+                const dot = this.statusIndicator.querySelector('.status-dot');
+                if (dot) {
+                    dot.className = `status-dot ${statusInfo.dot}`;
+                }
+            }
+            
+            updateStats() {
+                this.stats.connectedUsers = this.dataConnections.size;
+                this.connectedUsersSpan.textContent = this.stats.connectedUsers;
+                this.totalCallsSpan.textContent = this.stats.totalCalls;
+                this.activeCallsSpan.textContent = this.stats.activeCalls;
+                
+                // Show/hide connection list
+                if (this.stats.connectedUsers > 0) {
+                    this.connectionList.style.display = 'block';
+                } else {
+                    this.connectionList.style.display = 'none';
+                }
+            }
+            
+            updateConnectionList() {
+                if (this.dataConnections.size === 0) {
+                    this.connectionsContainer.innerHTML = '<p style="color: #666; text-align: center;">No users connected</p>';
+                    return;
+                }
+                
+                let html = '';
+                this.dataConnections.forEach((conn, peerId) => {
+                    const shortId = peerId.length > 15 ? peerId.substr(0, 15) + '...' : peerId;
+                    const status = this.mediaConnections.has(peerId) ? 'In call' : 'Connected';
+                    const statusColor = this.mediaConnections.has(peerId) ? '#28a745' : '#6c757d';
+                    
+                    html += `
+                        <div class="connection-item">
+                            <div style="font-weight: bold;">${shortId}</div>
+                            <div style="font-size: 12px; color: ${statusColor};">${status}</div>
+                        </div>
+                    `;
+                });
+                
+                this.connectionsContainer.innerHTML = html;
+            }
+            
+            showCallControls() {
+                this.callControls.style.display = 'block';
+            }
+            
+            hideCallControls() {
+                this.callControls.style.display = 'none';
+            }
+            
+            playRingtone() {
+                // Create a simple ringtone
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 800;
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                    
+                    // Repeat every 2 seconds
+                    this.ringtoneInterval = setInterval(() => {
+                        if (this.incomingCallDiv.style.display === 'block') {
+                            oscillator.start();
+                            oscillator.stop(audioContext.currentTime + 0.5);
+                        }
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.log("Could not play ringtone:", error);
+                }
+            }
+            
+            stopRingtone() {
+                if (this.ringtoneInterval) {
+                    clearInterval(this.ringtoneInterval);
+                    this.ringtoneInterval = null;
+                }
+            }
+            
+            showNotification(message, type) {
+                this.notification.textContent = message;
+                this.notification.className = `notification notification-${type}`;
+                this.notification.style.display = 'block';
+                
+                setTimeout(() => {
+                    this.notification.style.display = 'none';
+                }, 3000);
+            }
+            
+            setupPWA() {
+                // Prevent iOS from sleeping
+                if ('wakeLock' in navigator) {
+                    navigator.wakeLock.request('screen').catch(console.error);
+                }
+                
+                // Keep alive ping
+                setInterval(() => {
+                    if (this.peer && !this.peer.disconnected) {
+                        this.broadcastToAllUsers({ 
+                            type: 'ping', 
+                            timestamp: Date.now() 
+                        });
+                    }
+                }, 30000);
+            }
+            
+            setupAutoReconnect() {
+                // Auto-reconnect every 5 minutes to keep connection fresh
+                setInterval(() => {
+                    if (this.peer && this.dataConnections.size === 0) {
+                        console.log("Refreshing connection...");
+                        this.peer.reconnect();
+                    }
+                }, 300000); // 5 minutes
+            }
+        }
+        
+        // Install PWA
+        window.installPWA = function() {
+            if ('serviceWorker' in navigator && 'BeforeInstallPromptEvent' in window) {
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    e.prompt();
+                });
+            } else {
+                alert("Your browser doesn't support PWA installation.");
+            }
+        };
+        
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            // Check for WebRTC support
+            if (!navigator.mediaDevices || !window.Peer) {
+                alert("Your browser doesn't support voice calls. Please use Chrome, Firefox, or Edge.");
+                return;
+            }
+            
+            new OwnerCallSystem();
+        });
+        
+        // Service Worker registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(
+                    registration => {
+                        console.log('ServiceWorker registered');
+                    },
+                    err => {
+                        console.log('ServiceWorker registration failed:', err);
+                    }
+                );
+            });
+        }
+    </script>
 </body>
 </html>

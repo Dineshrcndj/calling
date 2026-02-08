@@ -3,121 +3,775 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Call Owner</title>
+    <title>Call Support</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
         }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        
         .call-btn {
-            background-color: #4CAF50;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
             color: white;
-            padding: 20px 40px;
-            font-size: 24px;
             border: none;
             border-radius: 50px;
+            padding: 25px 50px;
+            font-size: 24px;
+            font-weight: bold;
             cursor: pointer;
+            width: 100%;
             margin: 20px 0;
             transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
         }
+        
         .call-btn:hover:not(:disabled) {
-            background-color: #45a049;
-            transform: scale(1.05);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.4);
         }
+        
+        .call-btn:active:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        
         .call-btn:disabled {
-            background-color: #cccccc;
+            background: linear-gradient(135deg, #cccccc 0%, #999999 100%);
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
-        .call-btn.end-call {
-            background-color: #f44336;
+        
+        .call-btn.call-active {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            box-shadow: 0 10px 30px rgba(244, 67, 54, 0.3);
         }
-        .status {
-            margin: 20px 0;
-            padding: 15px;
-            border-radius: 10px;
+        
+        .status-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            min-height: 120px;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            border-radius: 50px;
             font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 20px;
         }
-        .online { background-color: #d4edda; color: #155724; }
-        .offline { background-color: #f8d7da; color: #721c24; }
-        .calling { 
-            background-color: #fff3cd; 
+        
+        .status-offline {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        
+        .status-connecting {
+            background: #fff3cd;
             color: #856404;
+            border: 2px solid #ffeaa7;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-online {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        
+        .status-calling {
+            background: #cce5ff;
+            color: #004085;
+            border: 2px solid #b8daff;
             animation: pulse 1.5s infinite;
         }
+        
         @keyframes pulse {
             0% { opacity: 1; }
             50% { opacity: 0.7; }
             100% { opacity: 1; }
         }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .dot-red { background: #dc3545; }
+        .dot-yellow { background: #ffc107; }
+        .dot-green { background: #28a745; }
+        .dot-blue { background: #007bff; }
+        
+        .status-message {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+        
         audio {
             width: 100%;
-            margin-top: 20px;
-            background: #f0f0f0;
+            margin: 20px 0;
             border-radius: 10px;
         }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            display: none;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .notification-success { background: #28a745; }
+        .notification-error { background: #dc3545; }
+        .notification-info { background: #17a2b8; }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
         .instructions {
-            background: #f8f9fa;
+            background: #e7f3ff;
             padding: 15px;
             border-radius: 10px;
             margin: 20px 0;
+            font-size: 14px;
+            color: #0c63e4;
             text-align: left;
         }
-        .owner-id-display {
-            background: #e3f2fd;
+        
+        .debug-toggle {
+            margin-top: 20px;
             padding: 10px;
+            background: #f8f9fa;
             border-radius: 5px;
-            margin: 10px 0;
-            font-family: monospace;
-            word-break: break-all;
+            font-size: 12px;
+            color: #6c757d;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #6c757d;
+            text-align: left;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .mic-test {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+        
+        .mic-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ccc;
+            display: inline-block;
+            margin-right: 10px;
+            transition: background 0.3s;
+        }
+        
+        .mic-indicator.active {
+            background: #4CAF50;
+            animation: micPulse 1s infinite;
+        }
+        
+        @keyframes micPulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+        
+        .volume-meter {
+            height: 5px;
+            background: #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .volume-level {
+            height: 100%;
+            background: #4CAF50;
+            width: 0%;
+            transition: width 0.1s;
         }
     </style>
 </head>
 <body>
-    <h1>📞 Call Owner</h1>
-    
-    <div class="instructions">
-        <h3>How to use:</h3>
-        <ol>
-            <li>Owner must open their app first</li>
-            <li>Copy the Owner ID shown in owner's app</li>
-            <li>Paste Owner ID below and click "Connect"</li>
-            <li>Click "Call Owner" to start the call</li>
-        </ol>
-    </div>
-    
-    <div id="connectionPanel">
-        <div class="owner-id-display">
-            <strong>Owner Connection Status:</strong>
-            <span id="ownerStatus">Not Connected</span>
+    <div class="container">
+        <div class="logo">📞</div>
+        <h1>Support Call</h1>
+        <p class="subtitle">Click below to connect instantly with support team</p>
+        
+        <div class="status-container">
+            <div id="statusIndicator" class="status-indicator status-offline">
+                <span class="status-dot dot-red"></span>
+                <span id="statusText">Ready to Connect</span>
+            </div>
+            <div id="statusMessage" class="status-message">
+                Click the call button to connect instantly
+            </div>
         </div>
         
-        <div style="margin: 20px 0;">
-            <input type="text" 
-                   id="ownerIdInput" 
-                   placeholder="Paste Owner ID here"
-                   style="padding: 10px; width: 300px; font-size: 16px; margin-right: 10px;">
-            <button id="connectBtn" style="padding: 10px 20px; font-size: 16px;">
-                Connect to Owner
-            </button>
+        <button id="callBtn" class="call-btn">
+            <span id="callIcon">📞</span>
+            <span id="callText">Call Support</span>
+        </button>
+        
+        <div class="mic-test" id="micTest" style="display: none;">
+            <div style="margin-bottom: 10px;">
+                <span class="mic-indicator"></span>
+                <span>Microphone Test</span>
+            </div>
+            <div class="volume-meter">
+                <div class="volume-level" id="volumeLevel"></div>
+            </div>
         </div>
+        
+        <audio id="remoteAudio" controls style="display: none;"></audio>
+        
+        <div class="instructions">
+            <strong>How it works:</strong><br>
+            1. Click "Call Support" button<br>
+            2. System automatically connects you<br>
+            3. Wait for support agent to answer<br>
+            4. Start talking - no ID needed!
+        </div>
+        
+        <div class="debug-toggle" onclick="toggleDebug()">
+            Show/Hide Connection Details
+        </div>
+        
+        <div class="debug-info" id="debugInfo"></div>
     </div>
     
-    <div id="callPanel" style="display: none;">
-        <div id="status" class="status offline">Owner Offline</div>
-        
-        <button id="callBtn" class="call-btn">📞 Call Owner</button>
-        
-        <div id="callStatus" style="margin: 15px; font-size: 18px;"></div>
-        
-        <audio id="remoteAudio" autoplay controls></audio>
-        <audio id="localAudio" muted controls style="display: none;"></audio>
-    </div>
+    <div class="notification" id="notification"></div>
     
     <!-- PeerJS Library -->
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
-    <script src="user-app.js"></script>
+    <script>
+        // ========== USER CALL SYSTEM ==========
+        class UserCallSystem {
+            constructor() {
+                // ⚡ FIXED OWNER ID - CHANGE THIS TO YOUR PERMANENT ID
+                // This ID should match the owner's permanent ID in owner.html
+                this.OWNER_ID = "support-agent-007";
+                
+                this.peer = null;
+                this.ownerConnection = null;
+                this.activeCall = null;
+                this.localStream = null;
+                this.myId = null;
+                this.isConnected = false;
+                this.isCalling = false;
+                this.audioContext = null;
+                this.analyser = null;
+                this.micInterval = null;
+                
+                // DOM Elements
+                this.callBtn = document.getElementById('callBtn');
+                this.statusIndicator = document.getElementById('statusIndicator');
+                this.statusText = document.getElementById('statusText');
+                this.statusMessage = document.getElementById('statusMessage');
+                this.callIcon = document.getElementById('callIcon');
+                this.callText = document.getElementById('callText');
+                this.remoteAudio = document.getElementById('remoteAudio');
+                this.notification = document.getElementById('notification');
+                this.debugInfo = document.getElementById('debugInfo');
+                this.micTest = document.getElementById('micTest');
+                this.volumeLevel = document.getElementById('volumeLevel');
+                this.micIndicator = document.querySelector('.mic-indicator');
+                
+                this.init();
+            }
+            
+            async init() {
+                this.debugLog("🚀 Initializing Direct Call System...");
+                this.debugLog(`📞 Owner ID: ${this.OWNER_ID}`);
+                
+                // Generate user ID
+                this.myId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+                
+                // Initialize PeerJS
+                this.initializePeer();
+                
+                // Setup event listeners
+                this.setupEventListeners();
+                
+                // Request microphone
+                await this.requestMicrophone();
+                
+                this.debugLog("✅ System ready. Click Call Support to connect.");
+            }
+            
+            initializePeer() {
+                this.debugLog("Connecting to signaling server...");
+                
+                this.peer = new Peer(this.myId, {
+                    host: '0.peerjs.com',
+                    port: 443,
+                    path: '/',
+                    secure: true,
+                    config: {
+                        'iceServers': [
+                            { urls: 'stun:stun.l.google.com:19302' },
+                            { urls: 'stun:global.stun.twilio.com:3478' }
+                        ]
+                    },
+                    debug: 2
+                });
+                
+                this.setupPeerListeners();
+            }
+            
+            setupPeerListeners() {
+                // Connected to signaling server
+                this.peer.on('open', (id) => {
+                    this.debugLog(`✅ Connected to server. Your ID: ${id}`);
+                    this.myId = id;
+                    this.updateStatus("ready", "Ready to call");
+                    this.showNotification("System ready", "info");
+                });
+                
+                // Handle incoming data connection
+                this.peer.on('connection', (connection) => {
+                    this.debugLog(`Incoming connection from: ${connection.peer}`);
+                    this.handleOwnerConnection(connection);
+                });
+                
+                // Handle incoming call
+                this.peer.on('call', async (call) => {
+                    this.debugLog(`📞 Incoming call from: ${call.peer}`);
+                    
+                    if (call.peer !== this.OWNER_ID) {
+                        this.debugLog("Ignoring call from non-owner");
+                        return;
+                    }
+                    
+                    this.activeCall = call;
+                    
+                    try {
+                        // Answer the call
+                        call.answer(this.localStream);
+                        
+                        call.on('stream', (remoteStream) => {
+                            this.debugLog("🎵 Received audio stream");
+                            this.remoteAudio.srcObject = remoteStream;
+                            this.remoteAudio.style.display = 'block';
+                            this.updateStatus("connected", "Call connected!");
+                            this.showNotification("Call connected!", "success");
+                        });
+                        
+                        call.on('close', () => {
+                            this.debugLog("Call ended");
+                            this.endCall();
+                            this.updateStatus("ready", "Call ended");
+                        });
+                        
+                        call.on('error', (err) => {
+                            this.debugError("Call error:", err);
+                            this.endCall();
+                            this.updateStatus("error", "Call error");
+                        });
+                        
+                    } catch (error) {
+                        this.debugError("Error answering call:", error);
+                        this.endCall();
+                    }
+                });
+                
+                // Handle errors
+                this.peer.on('error', (err) => {
+                    this.debugError("PeerJS error:", err);
+                    
+                    if (err.type === 'peer-unavailable') {
+                        this.updateStatus("offline", "Support offline");
+                        this.showNotification("Support is currently offline", "error");
+                    } else if (err.type === 'network') {
+                        this.updateStatus("error", "Network error");
+                        setTimeout(() => this.reconnect(), 3000);
+                    }
+                });
+            }
+            
+            async requestMicrophone() {
+                try {
+                    this.localStream = await navigator.mediaDevices.getUserMedia({
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true,
+                            sampleRate: 48000
+                        },
+                        video: false
+                    });
+                    
+                    this.debugLog("🎤 Microphone access granted");
+                    this.micTest.style.display = 'block';
+                    this.micIndicator.classList.add('active');
+                    
+                    // Setup microphone level monitoring
+                    this.setupMicMonitoring();
+                    
+                } catch (error) {
+                    this.debugError("Microphone error:", error);
+                    this.showNotification("Please allow microphone access", "error");
+                }
+            }
+            
+            setupMicMonitoring() {
+                if (!this.localStream) return;
+                
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                this.analyser = this.audioContext.createAnalyser();
+                const source = this.audioContext.createMediaStreamSource(this.localStream);
+                source.connect(this.analyser);
+                
+                this.analyser.fftSize = 256;
+                const bufferLength = this.analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                
+                this.micInterval = setInterval(() => {
+                    this.analyser.getByteFrequencyData(dataArray);
+                    let sum = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        sum += dataArray[i];
+                    }
+                    const average = sum / bufferLength;
+                    const level = Math.min(100, (average / 128) * 100);
+                    this.volumeLevel.style.width = level + '%';
+                }, 100);
+            }
+            
+            setupEventListeners() {
+                // Single call button
+                this.callBtn.addEventListener('click', () => {
+                    if (this.isCalling) {
+                        this.endCall();
+                    } else {
+                        this.startCall();
+                    }
+                });
+            }
+            
+            startCall() {
+                this.debugLog("🚀 Starting direct call...");
+                
+                // Update UI
+                this.isCalling = true;
+                this.callBtn.classList.add('call-active');
+                this.callIcon.textContent = '📞';
+                this.callText.textContent = 'Connecting...';
+                this.callBtn.disabled = true;
+                
+                this.updateStatus("connecting", "Connecting to support...");
+                
+                // Step 1: Connect data channel first
+                this.connectToOwner();
+            }
+            
+            connectToOwner() {
+                this.debugLog(`Attempting to connect to owner: ${this.OWNER_ID}`);
+                
+                // Establish data connection
+                this.ownerConnection = this.peer.connect(this.OWNER_ID, {
+                    reliable: true,
+                    serialization: 'json'
+                });
+                
+                this.ownerConnection.on('open', () => {
+                    this.debugLog("✅ Data connection established with owner");
+                    this.isConnected = true;
+                    this.updateStatus("online", "Connected to support");
+                    this.callBtn.disabled = false;
+                    this.callText.textContent = 'End Call';
+                    
+                    // Step 2: Start the call
+                    this.initiateCall();
+                });
+                
+                this.ownerConnection.on('data', (data) => {
+                    this.debugLog("Received data:", data);
+                    
+                    if (data.type === 'owner-status') {
+                        if (data.status === 'available') {
+                            this.updateStatus("online", "Support available");
+                        } else if (data.status === 'busy') {
+                            this.updateStatus("busy", "Support is busy");
+                            this.showNotification("Support is currently busy", "info");
+                        }
+                    } else if (data.type === 'call-rejected') {
+                        this.updateStatus("rejected", "Call declined");
+                        this.showNotification("Call declined by support", "error");
+                        this.endCall();
+                    }
+                });
+                
+                this.ownerConnection.on('close', () => {
+                    this.debugLog("Data connection closed");
+                    this.isConnected = false;
+                    this.endCall();
+                });
+                
+                this.ownerConnection.on('error', (err) => {
+                    this.debugError("Data connection error:", err);
+                    this.showNotification("Connection failed", "error");
+                    this.endCall();
+                });
+            }
+            
+            initiateCall() {
+                if (!this.localStream) {
+                    this.debugLog("No microphone access");
+                    this.showNotification("Microphone not available", "error");
+                    return;
+                }
+                
+                this.debugLog("Initiating audio call...");
+                this.updateStatus("calling", "Calling support...");
+                
+                try {
+                    // Make the call
+                    this.activeCall = this.peer.call(this.OWNER_ID, this.localStream);
+                    
+                    if (!this.activeCall) {
+                        throw new Error("Failed to create call object");
+                    }
+                    
+                    this.activeCall.on('stream', (remoteStream) => {
+                        this.debugLog("🎵 Received support audio");
+                        this.remoteAudio.srcObject = remoteStream;
+                        this.remoteAudio.style.display = 'block';
+                        this.updateStatus("connected", "Connected to support");
+                        this.showNotification("Call connected!", "success");
+                    });
+                    
+                    this.activeCall.on('close', () => {
+                        this.debugLog("Call closed");
+                        this.endCall();
+                    });
+                    
+                    this.activeCall.on('error', (err) => {
+                        this.debugError("Call error:", err);
+                        this.showNotification("Call failed", "error");
+                        this.endCall();
+                    });
+                    
+                } catch (error) {
+                    this.debugError("Error initiating call:", error);
+                    this.showNotification("Failed to start call", "error");
+                    this.endCall();
+                }
+            }
+            
+            endCall() {
+                this.debugLog("Ending call...");
+                
+                // Close active call
+                if (this.activeCall) {
+                    this.activeCall.close();
+                    this.activeCall = null;
+                }
+                
+                // Close data connection
+                if (this.ownerConnection) {
+                    this.ownerConnection.close();
+                    this.ownerConnection = null;
+                }
+                
+                // Clear audio
+                if (this.remoteAudio.srcObject) {
+                    this.remoteAudio.srcObject = null;
+                    this.remoteAudio.style.display = 'none';
+                }
+                
+                // Reset UI
+                this.isCalling = false;
+                this.isConnected = false;
+                this.callBtn.classList.remove('call-active');
+                this.callIcon.textContent = '📞';
+                this.callText.textContent = 'Call Support';
+                this.callBtn.disabled = false;
+                
+                this.updateStatus("ready", "Ready to call");
+            }
+            
+            reconnect() {
+                if (this.peer.disconnected) {
+                    this.peer.reconnect();
+                }
+            }
+            
+            updateStatus(status, message) {
+                const statusConfig = {
+                    "ready": {
+                        class: "status-offline",
+                        dot: "dot-red",
+                        text: "Ready to Call"
+                    },
+                    "connecting": {
+                        class: "status-connecting", 
+                        dot: "dot-yellow",
+                        text: "Connecting..."
+                    },
+                    "online": {
+                        class: "status-online",
+                        dot: "dot-green",
+                        text: "Connected"
+                    },
+                    "calling": {
+                        class: "status-calling",
+                        dot: "dot-blue",
+                        text: "Calling..."
+                    },
+                    "connected": {
+                        class: "status-online",
+                        dot: "dot-green",
+                        text: "In Call"
+                    },
+                    "offline": {
+                        class: "status-offline",
+                        dot: "dot-red",
+                        text: "Offline"
+                    },
+                    "error": {
+                        class: "status-offline",
+                        dot: "dot-red",
+                        text: "Error"
+                    },
+                    "busy": {
+                        class: "status-connecting",
+                        dot: "dot-yellow",
+                        text: "Busy"
+                    },
+                    "rejected": {
+                        class: "status-offline",
+                        dot: "dot-red",
+                        text: "Declined"
+                    }
+                };
+                
+                const config = statusConfig[status] || statusConfig.ready;
+                
+                this.statusIndicator.className = `status-indicator ${config.class}`;
+                this.statusIndicator.querySelector('.status-dot').className = `status-dot ${config.dot}`;
+                this.statusText.textContent = config.text;
+                this.statusMessage.textContent = message;
+            }
+            
+            showNotification(message, type) {
+                this.notification.textContent = message;
+                this.notification.className = `notification notification-${type}`;
+                this.notification.style.display = 'block';
+                
+                setTimeout(() => {
+                    this.notification.style.display = 'none';
+                }, 3000);
+            }
+            
+            debugLog(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                const log = `[${timestamp}] ${message}`;
+                console.log(log);
+                
+                const debugDiv = this.debugInfo;
+                debugDiv.innerHTML = log + '<br>' + debugDiv.innerHTML;
+            }
+            
+            debugError(message, error) {
+                const timestamp = new Date().toLocaleTimeString();
+                const log = `[${timestamp}] ❌ ${message}: ${error?.message || error}`;
+                console.error(log, error);
+                
+                const debugDiv = this.debugInfo;
+                debugDiv.innerHTML = `<span style="color: red;">${log}</span><br>` + debugDiv.innerHTML;
+            }
+        }
+        
+        // Toggle debug info
+        window.toggleDebug = function() {
+            const debugInfo = document.getElementById('debugInfo');
+            debugInfo.style.display = debugInfo.style.display === 'block' ? 'none' : 'block';
+        };
+        
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            // Check for WebRTC support
+            if (!navigator.mediaDevices || !window.Peer) {
+                alert("Your browser doesn't support voice calls. Please use Chrome, Firefox, or Edge.");
+                return;
+            }
+            
+            new UserCallSystem();
+        });
+    </script>
 </body>
 </html>
