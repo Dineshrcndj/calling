@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call Owner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .call-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px 40px;
+            font-size: 24px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s;
+        }
+        .call-btn:hover:not(:disabled) {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        .call-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .call-btn.end-call {
+            background-color: #f44336;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        .online { background-color: #d4edda; color: #155724; }
+        .offline { background-color: #f8d7da; color: #721c24; }
+        .calling { 
+            background-color: #fff3cd; 
+            color: #856404;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        audio {
+            width: 100%;
+            margin-top: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+        .instructions {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .owner-id-display {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <h1>📞 Call Owner</h1>
+    
+    <div class="instructions">
+        <h3>How to use:</h3>
+        <ol>
+            <li>Owner must open their app first</li>
+            <li>Copy the Owner ID shown in owner's app</li>
+            <li>Paste Owner ID below and click "Connect"</li>
+            <li>Click "Call Owner" to start the call</li>
+        </ol>
+    </div>
+    
+    <div id="connectionPanel">
+        <div class="owner-id-display">
+            <strong>Owner Connection Status:</strong>
+            <span id="ownerStatus">Not Connected</span>
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <input type="text" 
+                   id="ownerIdInput" 
+                   placeholder="Paste Owner ID here"
+                   style="padding: 10px; width: 300px; font-size: 16px; margin-right: 10px;">
+            <button id="connectBtn" style="padding: 10px 20px; font-size: 16px;">
+                Connect to Owner
+            </button>
+        </div>
+    </div>
+    
+    <div id="callPanel" style="display: none;">
+        <div id="status" class="status offline">Owner Offline</div>
+        
+        <button id="callBtn" class="call-btn">📞 Call Owner</button>
+        
+        <div id="callStatus" style="margin: 15px; font-size: 18px;"></div>
+        
+        <audio id="remoteAudio" autoplay controls></audio>
+        <audio id="localAudio" muted controls style="display: none;"></audio>
+    </div>
+    
+    <!-- PeerJS Library -->
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="user-app.js"></script>
+</body>
+</html>

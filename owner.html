@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner - Call Receiver</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .online { background: #d4edda; color: #155724; }
+        .offline { background: #f8d7da; color: #721c24; }
+        .busy { background: #fff3cd; color: #856404; }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .green-dot { background: #28a745; }
+        .red-dot { background: #dc3545; }
+        .yellow-dot { background: #ffc107; }
+        
+        .owner-id-box {
+            background: #e7f3ff;
+            border: 2px dashed #0d6efd;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .call-notification {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+            animation: pulse 2s infinite;
+            border: 3px solid #4CAF50;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        .call-notification.active {
+            display: block;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+            min-width: 120px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn-accept {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-end {
+            background: #ff9800;
+            color: white;
+            margin-top: 20px;
+        }
+        
+        audio {
+            width: 100%;
+            margin: 20px 0;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+        
+        .connection-count {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            display: none;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .notification.success { background: #28a745; }
+        .notification.error { background: #dc3545; }
+        .notification.info { background: #17a2b8; }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .qr-code {
+            margin: 20px auto;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Call Owner</h1>
+        <div class="status-card">
+            <div class="status-indicator offline" id="statusIndicator">
+                <span class="dot red-dot"></span>
+                <span id="statusText">Offline</span>
+            </div>
+            
+            <div class="owner-id-box">
+                <strong>Your Owner ID:</strong><br>
+                <span id="ownerIdDisplay">Connecting...</span>
+            </div>
+            
+            <div class="connection-count">
+                📊 Connected Users: <span id="userCount">0</span>
+            </div>
+            
+            <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                <p>Share this ID with users to receive calls</p>
+                <p>Keep this page open to stay available</p>
+            </div>
+        </div>
+        
+        <div class="call-notification" id="callNotification">
+            <div style="font-size: 20px; margin-bottom: 15px;">
+                📞 Incoming Call
+            </div>
+            <div id="callerInfo" style="margin-bottom: 20px; color: #555;">
+                User is calling...
+            </div>
+            <div>
+                <button class="btn btn-accept" id="acceptBtn">Accept</button>
+                <button class="btn btn-reject" id="rejectBtn">Reject</button>
+            </div>
+        </div>
+        
+        <div id="callControls" style="display: none;">
+            <div style="font-size: 20px; color: #28a745; margin: 15px 0;">
+                ✓ Call Connected
+            </div>
+            <audio id="remoteAudio" autoplay controls></audio>
+            <button class="btn btn-end" id="endCallBtn">End Call</button>
+        </div>
+        
+        <div id="idleMessage" style="color: #666; font-size: 14px; margin-top: 20px;">
+            Waiting for calls...
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <!-- PeerJS Library -->
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="owner-app.js"></script>
+</body>
+</html>
